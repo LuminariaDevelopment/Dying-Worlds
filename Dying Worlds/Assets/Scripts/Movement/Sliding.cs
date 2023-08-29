@@ -23,11 +23,21 @@ public class Sliding : MonoBehaviour
     private float horizontalInput;
     private float verticalInput;
 
+    private float originalSpeedIncreaseMultiplier;
+    private float originalSlopeIncreaseMultiplier;
+
+    public float slideSlopeIncreaseMultiplier;
+    public float slideSpeedIncreaseMultiplier;
+
+
 
     private void Start()
     {
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement>();
+
+        originalSpeedIncreaseMultiplier = pm.speedIncreaseMultiplier;
+        originalSlopeIncreaseMultiplier = pm.slopeIncreaseMultiplier;
 
         startYScale = playerObj.localScale.y;
     }
@@ -37,7 +47,7 @@ public class Sliding : MonoBehaviour
         horizontalInput = Input.GetAxisRaw("Horizontal");
         verticalInput = Input.GetAxisRaw("Vertical");
 
-        if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0))
+        if (Input.GetKeyDown(slideKey) && (horizontalInput != 0 || verticalInput != 0) && pm.state == PlayerMovement.MovementState.sprinting)
             StartSlide();
 
         if (Input.GetKeyUp(slideKey) && pm.sliding)
@@ -58,6 +68,9 @@ public class Sliding : MonoBehaviour
         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
 
         slideTimer = maxSlideTime;
+
+        pm.speedIncreaseMultiplier = slideSpeedIncreaseMultiplier;
+        pm.slopeIncreaseMultiplier = slideSlopeIncreaseMultiplier;
     }
 
     private void SlidingMovement()
@@ -87,5 +100,8 @@ public class Sliding : MonoBehaviour
         pm.sliding = false;
 
         playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
+
+        pm.speedIncreaseMultiplier = originalSpeedIncreaseMultiplier;
+        pm.slopeIncreaseMultiplier = originalSlopeIncreaseMultiplier;
     }
 }

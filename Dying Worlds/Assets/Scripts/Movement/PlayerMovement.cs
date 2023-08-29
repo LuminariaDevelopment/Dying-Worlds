@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -8,13 +9,20 @@ public class PlayerMovement : MonoBehaviour
     private float moveSpeed;
     public float walkSpeed;
     public float sprintSpeed;
-    public float slideSpeed;
 
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
 
     public float speedIncreaseMultiplier;
     public float slopeIncreaseMultiplier;
+
+    public float sprintSpeedIncreaseMultiplier;
+    public float sprintSlopeIncreaseMultiplier;
+
+    [Header("Slide")]
+    public float slideSpeed;
+    public float slideSpeedIncreaseMultiplier;
+    public float slideSlopeIncreaseMultiplier;
 
     public float groundDrag;
 
@@ -63,6 +71,7 @@ public class PlayerMovement : MonoBehaviour
         sliding,
         air
     }
+
 
     public bool sliding;
 
@@ -128,7 +137,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    private void StateHandler()
+   private void StateHandler()
     {
         // Mode - Sliding
         if (sliding)
@@ -136,10 +145,17 @@ public class PlayerMovement : MonoBehaviour
             state = MovementState.sliding;
 
             if (OnSlope() && rb.velocity.y < 0.1f)
+            {
                 desiredMoveSpeed = slideSpeed;
-
+                speedIncreaseMultiplier = slideSpeedIncreaseMultiplier;
+                slopeIncreaseMultiplier = slideSlopeIncreaseMultiplier;
+            }
             else
-                desiredMoveSpeed = sprintSpeed;
+            {
+                desiredMoveSpeed = slideSpeed; // Du kannst den gewünschten Slide-Speed anpassen
+                speedIncreaseMultiplier = 1f; // Keine zusätzliche Multiplikation im Slide-Modus
+                slopeIncreaseMultiplier = 1f; // Keine zusätzliche Multiplikation im Slide-Modus
+            }
         }
 
         // Mode - Crouching
@@ -147,6 +163,8 @@ public class PlayerMovement : MonoBehaviour
         {
             state = MovementState.crouching;
             desiredMoveSpeed = crouchSpeed;
+            speedIncreaseMultiplier = 1f;
+            slopeIncreaseMultiplier = 1f;
         }
 
         // Mode - Sprinting
@@ -154,6 +172,8 @@ public class PlayerMovement : MonoBehaviour
         {
             state = MovementState.sprinting;
             desiredMoveSpeed = sprintSpeed;
+            speedIncreaseMultiplier = sprintSpeedIncreaseMultiplier;
+            slopeIncreaseMultiplier = sprintSlopeIncreaseMultiplier;
         }
 
         // Mode - Walking
@@ -256,6 +276,7 @@ public class PlayerMovement : MonoBehaviour
                 Vector3 limitedVel = flatVel.normalized * moveSpeed;
                 rb.velocity = new Vector3(limitedVel.x, rb.velocity.y, limitedVel.z);
             }
+
         }
     }
 
@@ -290,4 +311,5 @@ public class PlayerMovement : MonoBehaviour
     {
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
+
 }

@@ -4,13 +4,16 @@ using UnityEngine;
 
 public class PlayerCam : MonoBehaviour
 {
-    public float senX;
-    public float senY;
+    public float sensitivityX = 100f;
+    public float sensitivityY = 100f;
 
     public Transform orientation;
-    internal bool whatIsGround;
-    float xRotation;
-    float yRotation;
+
+    float xRotation = 0f;
+    float yRotation = 0f;
+
+    private const float MinXRotation = -90f;
+    private const float MaxXRotation = 90f;
 
     private void Start()
     {
@@ -20,13 +23,13 @@ public class PlayerCam : MonoBehaviour
 
     private void Update()
     {
-        float mouseX = Input.GetAxisRaw("Mouse X") * Time.deltaTime * senX;
-        float mouseY = Input.GetAxisRaw("Mouse Y") * Time.deltaTime * senY;
+        float mouseX = Input.GetAxis("Mouse X") * sensitivityX * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * sensitivityY * Time.deltaTime;
 
         yRotation += mouseX;
         xRotation -= mouseY;
 
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        xRotation = Mathf.Clamp(xRotation, MinXRotation, MaxXRotation);
 
         // Rotate Cam and Orientation
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
