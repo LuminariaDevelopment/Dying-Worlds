@@ -19,6 +19,15 @@ public class PlayerMovement : MonoBehaviour
     public float sprintSpeedIncreaseMultiplier;
     public float sprintSlopeIncreaseMultiplier;
 
+    [Header("Headbobbing")]
+    public float headbobSpeed;
+    public float headbobAmount;
+
+    private Vector3 originalCameraPosition;
+    private float headbobTimer;
+    private Vector3 originalCamPosition;
+
+
     [Header("Slide")]
     public float slideSpeed;
     public float slideSpeedIncreaseMultiplier;
@@ -75,7 +84,7 @@ public class PlayerMovement : MonoBehaviour
 
     public bool sliding;
 
-    private void Start()
+   private void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
@@ -83,6 +92,9 @@ public class PlayerMovement : MonoBehaviour
         readyToJump = true;
 
         startYScale = transform.localScale.y;
+
+        // Initialize originalCamPosition with the initial camera position
+        originalCamPosition = transform.GetChild(0).localPosition;
     }
 
     private void Update()
@@ -99,6 +111,58 @@ public class PlayerMovement : MonoBehaviour
             rb.drag = groundDrag;
         else
             rb.drag = 0;
+
+        // Headbobbing
+        if (grounded && state != MovementState.crouching && state != MovementState.sliding)
+        {
+            HandleHeadbobbing();
+        }
+        else
+        {
+            ResetHeadbob();
+        }
+    }
+
+    private void HandleHeadbobbing()
+    {
+        float headbobFrequency = walkSpeed * 0.4f;
+        float headbobAmplitude = 0.1f;
+
+        float horizontalMovement = Mathf.Abs(horizontalInput);
+        float verticalMovement = Mathf.Abs(verticalInput);
+
+        float headbobFactor = Mathf.Sqrt(horizontalMovement * horizontalMovement + verticalMovement * verticalMovement);
+
+        float horizontalHeadbob = Mathf.Sin(Time.time * headbobFrequency) * headbobAmplitude * headbobFactor;
+
+        float verticalHeadbob;
+        if (Input.GetKey(sprintKey))
+        {
+            verticalHeadbob = Mathf.Cos(Time.time * headbobFrequency * 3) * headbobAmplitude * headbobFactor * 2f; // Beschleunigung der vertikalen Kopfbewegung bei gedrückter Sprint-Taste
+        }
+        else
+        {
+            verticalHeadbob = Mathf.Cos(Time.time * headbobFrequency * 2) * headbobAmplitude * headbobFactor;
+        }
+
+
+        float currentHeadbobSpeed = headbobSpeed;
+
+        Vector3 newCamPosition = originalCamPosition + new Vector3(horizontalHeadbob, verticalHeadbob, 0);
+
+        // Apply the new camera position
+        transform.GetChild(0).localPosition = newCamPosition;
+
+        Debug.Log("Horizontal Headbob: " + horizontalHeadbob);
+        Debug.Log("Vertical Headbob: " + verticalHeadbob);
+        Debug.Log("Headbob Speed: " + headbobSpeed);
+        Debug.Log("Headbob Amount: " + headbobAmount);
+    }
+
+    private void ResetHeadbob()
+    {
+        headbobTimer = Mathf.PI / 2;
+        orientation.localPosition = Vector3.Lerp(orientation.localPosition, originalCameraPosition, Time.deltaTime * 2f);
     }
 
     private void FixedUpdate()
