@@ -35,7 +35,7 @@ public class Sliding : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         pm = GetComponent<PlayerMovement>();
-
+        slideTimer = maxSlideTime;
         originalSpeedIncreaseMultiplier = pm.speedIncreaseMultiplier;
         originalSlopeIncreaseMultiplier = pm.slopeIncreaseMultiplier;
 
@@ -66,9 +66,6 @@ public class Sliding : MonoBehaviour
 
         playerObj.localScale = new Vector3(playerObj.localScale.x, slideYScale, playerObj.localScale.z);
         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-
-        slideTimer = maxSlideTime;
-
         pm.speedIncreaseMultiplier = slideSpeedIncreaseMultiplier;
         pm.slopeIncreaseMultiplier = slideSlopeIncreaseMultiplier;
     }
@@ -98,10 +95,10 @@ public class Sliding : MonoBehaviour
     private void StopSlide()
     {
         pm.sliding = false;
-
         playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
-
+        slideTimer = maxSlideTime;
         pm.speedIncreaseMultiplier = originalSpeedIncreaseMultiplier;
         pm.slopeIncreaseMultiplier = originalSlopeIncreaseMultiplier;
     }
+
 }
