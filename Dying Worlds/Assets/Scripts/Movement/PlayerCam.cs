@@ -7,6 +7,9 @@ public class PlayerCam : MonoBehaviour
     public float sensitivityX = 100f;
     public float sensitivityY = 100f;
 
+    public float normalFOV = 90f;
+    public float sprintFOV = 110f;
+
     public Transform orientation;
 
     float xRotation = 0f;
@@ -15,10 +18,14 @@ public class PlayerCam : MonoBehaviour
     private const float MinXRotation = -90f;
     private const float MaxXRotation = 90f;
 
+    private PlayerMovement playerMovement;
+
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        playerMovement = GetComponentInParent<PlayerMovement>();
     }
 
     private void Update()
@@ -34,5 +41,20 @@ public class PlayerCam : MonoBehaviour
         // Rotate Cam and Orientation
         transform.rotation = Quaternion.Euler(xRotation, yRotation, 0);
         orientation.rotation = Quaternion.Euler(0, yRotation, 0);
+
+        // Adjust FOV based on player speed
+        if (playerMovement != null)
+        {
+            Debug.Log("Player Speed: " + playerMovement.MoveSpeed); // Debug line
+
+            float targetFOV = playerMovement.MoveSpeed > 9f ? sprintFOV : normalFOV;
+            float newFOV = Mathf.Lerp(Camera.main.fieldOfView, targetFOV, 0.2f);
+
+            Debug.Log("Target FOV: " + targetFOV + ", Current FOV: " + Camera.main.fieldOfView); // Debug line
+
+            Camera.main.fieldOfView = newFOV;
+
+            Debug.Log("New FOV: " + newFOV); // Debug line
+        }
     }
 }

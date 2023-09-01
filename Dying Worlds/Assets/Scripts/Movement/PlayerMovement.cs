@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -82,6 +83,11 @@ public class PlayerMovement : MonoBehaviour
     }
 
 
+    public float MoveSpeed
+    {
+        get { return moveSpeed; }
+    }
+
     public bool sliding;
 
    private void Start()
@@ -153,10 +159,6 @@ public class PlayerMovement : MonoBehaviour
         // Apply the new camera position
         transform.GetChild(0).localPosition = newCamPosition;
 
-        Debug.Log("Horizontal Headbob: " + horizontalHeadbob);
-        Debug.Log("Vertical Headbob: " + verticalHeadbob);
-        Debug.Log("Headbob Speed: " + headbobSpeed);
-        Debug.Log("Headbob Amount: " + headbobAmount);
     }
 
     private void ResetHeadbob()
@@ -376,4 +378,8 @@ public class PlayerMovement : MonoBehaviour
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
 
+    internal void DashInDirection(Vector3 normalized, float dashForce)
+    {
+        throw new NotImplementedException();
+    }
 }
